@@ -16,12 +16,10 @@ const navigateSedeElectronica = async () => {
   await page.goto("https://torrevieja.sedelectronica.es/citaprevia");
   await page.setViewport({ width: 1080, height: 1024 });
   const buttonSelector = await page.waitForSelector(`text/${service}`);
-  console.log("buttonSelector", buttonSelector);
   await buttonSelector.click();
   const citaPreviaButton = await page.waitForSelector(
     `text/${calendar}`
   );
-  console.log("citaPreviaButton", citaPreviaButton);
   setTimeout(async () => {
     await citaPreviaButton.click();
   }, 2000);
@@ -29,18 +27,15 @@ const navigateSedeElectronica = async () => {
     const appointmentDates = await page.waitForSelector(
       "div > .appointmentDates"
     );
-    console.log("appointmentDates", appointmentDates);
     const appointmentDatesInnerHTML = await page.evaluate(
       (appointmentDates) => appointmentDates.innerHTML,
       appointmentDates
     );
-    console.log("appointmentDatesInnerHTML", appointmentDatesInnerHTML);
   }, 5000);
   setTimeout(async () => {
     const firstAppointmentDate = await page.waitForSelector(
       "div > .appointmentDates > li:nth-child(1) > a"
     );
-    console.log("firstAppointmentDate", firstAppointmentDate);
     await firstAppointmentDate.click();
   }, 8000);
   setTimeout(async () => {
@@ -62,29 +57,29 @@ const navigateSedeElectronica = async () => {
   
   setTimeout(async () => {
     await page.type("[name='solicitorData.nif']", documentNumber);
-  }, 18000);
+  }, 16200);
   setTimeout(async () => {
     await page.type("[name='solicitorData.firstSurname']", firstSurname);
-  }, 20000);
+  }, 16400);
   setTimeout(async () => {
     await page.type("[name='solicitorData.secondSurname']", secondSurname);
-  } , 22000);
+  } , 16600);
   setTimeout(async () => {
     await page.type("[name='solicitorData.name']", givenName);
   }
-  , 24000);
+  , 16800);
   setTimeout(async () => {
     await page.type("[name='solicitorData.email']", email);
-  } , 26000);
+  } , 17000);
   setTimeout(async () => {
     await page.type("[name='solicitorData.mobile']", mobile);
-  }, 28000);
+  }, 17200);
   setTimeout(async () => {
     const beenInformed = await page.waitForSelector(
       "input[name='rgpd:declareHaveBeenInformed']"
     );
     await beenInformed.click();
-  }, 30000);
+  }, 17400);
   /*setTimeout, async () => {
     const cont = await page.waitForSelector("text/Enviar");
     await cont.click();
