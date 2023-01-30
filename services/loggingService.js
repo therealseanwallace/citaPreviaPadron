@@ -6,7 +6,7 @@ const log = async (service, calendar, json) => {
     calendar,
     json,
   });
-  console.log(await log.save());
+  return(await log.save());
 }
 
 export default log;

@@ -12,6 +12,7 @@
   "dependencies": {
     "html2json": "^1.0.2",
     "mongoose": "^6.9.0",
+    "node-schedule": "^2.1.1",
     "puppeteer": "^19.6.2"
   }
 }
