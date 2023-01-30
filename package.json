@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "html2json": "^1.0.2",
+    "mongoose": "^6.9.0",
     "puppeteer": "^19.6.2"
   }
 }

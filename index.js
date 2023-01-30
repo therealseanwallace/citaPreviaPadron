@@ -1,4 +1,8 @@
 import puppeteer from "puppeteer";
+import pkg from "html2json";
+const { html2json } = pkg;
+import log from "./services/loggingService.js";
+import mongoose from "mongoose";
 import fs from "fs";
 
 const service = "Alcaldía";
@@ -9,6 +13,19 @@ const firstSurname = "firstSurname";
 const secondSurname = "secondSurname";
 const email = "email@email.com";
 const mobile = "123456789";
+const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
+
+const connect = async () => {
+  try {
+    await mongoose.connect(MONGO_URL);
+  } catch (error) {
+    console.log("Error connecting to MongoDB: ", error.message);
+  } finally {
+    console.log("Connected to MongoDB");
+  }
+}
+
+connect();
 
 const navigateSedeElectronica = async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -31,6 +48,9 @@ const navigateSedeElectronica = async () => {
       (appointmentDates) => appointmentDates.innerHTML,
       appointmentDates
     );
+    const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
+    console.log('appointmentDatesJSON', appointmentDatesJSON);
+    log(service, calendar, appointmentDatesJSON);
   }, 5000);
   setTimeout(async () => {
     const firstAppointmentDate = await page.waitForSelector(
