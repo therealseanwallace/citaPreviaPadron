@@ -33,50 +33,58 @@ const connect = async () => {
 
 connect();
 
+const browser = await puppeteer.launch({ headless: true });
+const page = await browser.newPage();
+await page.setViewport({ width: 1080, height: 1024 });
+
 // Checks for appointments and logs the result to mongoDB
 const logAppointments = async (service, calendar) => {
-  // Open a new browser window and navigate to the specified page
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+  // Navigates to the specified page
+  await page.goto("about:blank");
   await page.goto("https://torrevieja.sedelectronica.es/citaprevia.1");
-  await page.setViewport({ width: 1080, height: 1024 });
 
-  // Select the service and calendar
-  const buttonSelector = await page.waitForSelector(`text/${service}`);
-  await buttonSelector.click();
-  const citaPreviaButton = await page.waitForSelector(`text/${calendar}`);
-  setTimeout(async () => {
-    await citaPreviaButton.click();
-  }, 2000);
-  setTimeout(async () => {
-    const appointmentDates = await page.waitForSelector(
-      "div > .appointmentDates"
-    );
+  // Attempts to select the service and calendar and log to mongodb
+  try {
+    const buttonSelector = await page.waitForSelector(`text/${service}`);
+    await buttonSelector.click();
+    const citaPreviaButton = await page.waitForSelector(`text/${calendar}`);
+    setTimeout(async () => {
+      await citaPreviaButton.click();
+    }, 2000);
+    setTimeout(async () => {
+      const appointmentDates = await page.waitForSelector(
+        "div > .appointmentDates"
+      );
 
-    // Get innerHTML and log it to mongoDB
-    const appointmentDatesInnerHTML = await page.evaluate(
-      (appointmentDates) => appointmentDates.innerHTML,
-      appointmentDates
+      // Get innerHTML and log it to mongoDB
+      const appointmentDatesInnerHTML = await page.evaluate(
+        (appointmentDates) => appointmentDates.innerHTML,
+        appointmentDates
+      );
+      const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
+      const logResult = await log(service, calendar, appointmentDatesJSON);
+      console.log('logResult is', logResult);
+    }, 5000);
+  } catch (error) {
+    console.error(
+      "Unable to obtain and log appointments. Error is: ",
+      error.message
     );
-    const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
-    const logResult = await log(service, calendar, appointmentDatesJSON);
-    console.log(
-      `[${Date.now()}] Logging appointment details. Result is: `,
-      logResult
-    );
-  }, 5000);
-  browser.close();
+  }
 };
 
 const runJobs = () => {
   console.log(`[${Date.now()}] Running jobs...`);
   logAppointments(service, calendar);
+
 };
 
-// Run the jobs at 30 seconds, 15 minutes and 30 seconds, 30 minutes and 30 seconds, and 45 minutes and 30 seconds past the hour
+// Run the jobs at 30 seconds, 15 minutes and 30 seconds,
+// 30 minutes and 30 seconds, and 45 minutes and 30 seconds
+// past the hour
 
 const rule = new RecurrenceRule();
-rule.minute = new Range(0, 59, 15);
+rule.minute = new Range(0, 59, 1);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
 
