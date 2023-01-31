@@ -20,6 +20,7 @@ const secondSurname = "secondSurname";
 const email = "email@email.com";
 const mobile = "123456789";
 const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
+const appointmentObtained = false;
 
 const connect = async () => {
   try {
@@ -33,38 +34,49 @@ const connect = async () => {
 
 connect();
 
-const browser = await puppeteer.launch({ headless: true });
-const page = await browser.newPage();
-await page.setViewport({ width: 1080, height: 1024 });
+const openNewBrowser = async () => {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1080, height: 1024 });
+  return { browser, page };
+};
 
 // Checks for appointments and logs the result to mongoDB
 const logAppointments = async (service, calendar) => {
+  const browser = await openNewBrowser();
   // Navigates to the specified page
-  await page.goto("about:blank");
-  await page.goto("https://torrevieja.sedelectronica.es/citaprevia.1");
+
+  await browser.page.goto("https://torrevieja.sedelectronica.es/citaprevia");
 
   // Attempts to select the service and calendar and log to mongodb
   try {
-    const buttonSelector = await page.waitForSelector(`text/${service}`);
+    await browser.page.goto("https://torrevieja.sedelectronica.es/citaprevia");
+    await browser.page.setViewport({ width: 1080, height: 1024 });
+    const buttonSelector = await browser.page.waitForSelector(`text/${service}`);
     await buttonSelector.click();
-    const citaPreviaButton = await page.waitForSelector(`text/${calendar}`);
+    const citaPreviaButton = await browser.page.waitForSelector(`text/${calendar}`);
     setTimeout(async () => {
       await citaPreviaButton.click();
     }, 2000);
+    let appointmentDatesInnerHTML;
     setTimeout(async () => {
-      const appointmentDates = await page.waitForSelector(
+      const appointmentDates = await browser.page.waitForSelector(
         "div > .appointmentDates"
       );
-
-      // Get innerHTML and log it to mongoDB
-      const appointmentDatesInnerHTML = await page.evaluate(
+      appointmentDatesInnerHTML = await browser.page.evaluate(
         (appointmentDates) => appointmentDates.innerHTML,
         appointmentDates
       );
-      const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
-      const logResult = await log(service, calendar, appointmentDatesJSON);
-      console.log('logResult is', logResult);
     }, 5000);
+    setTimeout(async () => {
+      const result = await log(service, calendar, appointmentDatesInnerHTML);
+      console.log('result is: ', result);
+      return result;
+    }, 7000);
+    setTimeout(async () => {
+      await browser.browser.close();
+    }, 8000);
+
   } catch (error) {
     console.error(
       "Unable to obtain and log appointments. Error is: ",
@@ -76,7 +88,9 @@ const logAppointments = async (service, calendar) => {
 const runJobs = () => {
   console.log(`[${Date.now()}] Running jobs...`);
   logAppointments(service, calendar);
-
+  if (appointmentObtained === false) {
+    // attemptToBookAppointment();
+  }
 };
 
 // Run the jobs at 30 seconds, 15 minutes and 30 seconds,
@@ -84,7 +98,7 @@ const runJobs = () => {
 // past the hour
 
 const rule = new RecurrenceRule();
-rule.minute = new Range(0, 59, 15);
+rule.minute = new Range(0, 59, 1);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
 
