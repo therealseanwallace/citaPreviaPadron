@@ -4,8 +4,10 @@ const { html2json } = pkg;
 import log from "./services/loggingService.js";
 import mongoose from "mongoose";
 import pkgSchedule from "node-schedule";
+const { scheduleJob, RecurrenceRule, Range } = pkgSchedule;
+
 console.log("pkgSchedule", pkgSchedule);
-const { scheduleJob } = pkgSchedule;
+
 
 
 const service = "Padrón de habitantes";
@@ -60,19 +62,22 @@ const logAppointments = async (service, calendar) => {
     );
     const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
     const logResult = await log(service, calendar, appointmentDatesJSON);
-    console.log("Logging appointment details. Result is: ", logResult);
+    console.log(`${Date.now()}] Logging appointment details. Result is: `, logResult);
   }, 5000);
 };
 
 const runJobs = () => {
-  console.log("Running jobs...");
+  console.log(`[${Date.now()}] Running jobs...`);
   logAppointments(service, calendar);
 };
 
-const onHour = scheduleJob("30 0 * * * *", runJobs);
-const onQuarterHour = scheduleJob("30 15 * * * *", runJobs);
-const onHalfHour = scheduleJob("30 30 * * * *", runJobs);
-const onThreeQuarterHour = scheduleJob("30 45 * * * *", runJobs);
+// Run the jobs at 30 seconds, 15 minutes and 30 seconds, 30 minutes and 30 seconds, and 45 minutes and 30 seconds past the hour
+
+const rule = new RecurrenceRule();
+rule.minute = new Range(0, 59, 15);
+rule.second = 30;
+const jobsSchedule = scheduleJob(rule, runJobs);
+
 
 // The below code will book an appointment if one is available. 
 // It works but, for now, it's commented out because I'm just 
