@@ -8,8 +8,6 @@ const { scheduleJob, RecurrenceRule, Range } = pkgSchedule;
 
 console.log("pkgSchedule", pkgSchedule);
 
-
-
 const service = "Padrón de habitantes";
 const calendar = "Cita previa Padrón de Habitantes";
 const testService = "Alcaldía";
@@ -62,7 +60,10 @@ const logAppointments = async (service, calendar) => {
     );
     const appointmentDatesJSON = html2json(appointmentDatesInnerHTML);
     const logResult = await log(service, calendar, appointmentDatesJSON);
-    console.log(`${Date.now()}] Logging appointment details. Result is: `, logResult);
+    console.log(
+      `[${Date.now()}] Logging appointment details. Result is: `,
+      logResult
+    );
   }, 5000);
 };
 
@@ -78,10 +79,9 @@ rule.minute = new Range(0, 59, 15);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
 
-
-// The below code will book an appointment if one is available. 
-// It works but, for now, it's commented out because I'm just 
-// interested in logging the appointment details for a short time 
+// The below code will book an appointment if one is available.
+// It works but, for now, it's commented out because I'm just
+// interested in logging the appointment details for a short time
 // before I pull the trigger on booking one.
 
 /*const navigateSedeElectronica = async () => {

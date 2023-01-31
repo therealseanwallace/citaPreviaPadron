@@ -1,14 +1,14 @@
 {
   "name": "citapreviapadron",
   "version": "0.1.0",
-  "description": "Una app sencilla para ayudar de conseguir una cita previa para darse de alta en el Padrón Municipal de Habitantes de Torrevieja",
+  "description": "A simple app to help get an appointment for the Padrón de Habitantes in Torrevieja, Spain.",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sean Patrick Wallace",
-  "license": "ISC",
+  "license": "CC BY-NC-SA 3.0",
   "dependencies": {
     "html2json": "^1.0.2",
     "mongoose": "^6.9.0",
