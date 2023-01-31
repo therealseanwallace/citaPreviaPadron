@@ -8,15 +8,15 @@ I already wrote the code which will get an appointment and tested that it works 
 
 ## Techs used:
 
-Node JS
-MongoDB/Mongoose
+- Node JS
+- MongoDB/Mongoose
 
 ## Packages used: 
 
-html2json
-Mongoose
-node-schedule
-puppeteer
+- [html2json](https://www.npmjs.com/package/html2json)
+- [Mongoose](https://www.npmjs.com/package/mongoose)
+- [node-schedule](https://www.npmjs.com/package/node-schedule)
+- [puppeteer](https://www.npmjs.com/package/puppeteer)
 
 "html2json": "^1.0.2",
     "mongoose": "^6.9.0",
