@@ -65,6 +65,7 @@ const logAppointments = async (service, calendar) => {
       logResult
     );
   }, 5000);
+  browser.close();
 };
 
 const runJobs = () => {
