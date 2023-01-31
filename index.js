@@ -98,7 +98,7 @@ const runJobs = () => {
 // past the hour
 
 const rule = new RecurrenceRule();
-rule.minute = new Range(0, 59, 1);
+rule.minute = new Range(0, 59, 15);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
 
