@@ -52,9 +52,13 @@ const logAppointments = async (service, calendar) => {
   try {
     await browser.page.goto("https://torrevieja.sedelectronica.es/citaprevia");
     await browser.page.setViewport({ width: 1080, height: 1024 });
-    const buttonSelector = await browser.page.waitForSelector(`text/${service}`);
+    const buttonSelector = await browser.page.waitForSelector(
+      `text/${service}`
+    );
     await buttonSelector.click();
-    const citaPreviaButton = await browser.page.waitForSelector(`text/${calendar}`);
+    const citaPreviaButton = await browser.page.waitForSelector(
+      `text/${calendar}`
+    );
     setTimeout(async () => {
       await citaPreviaButton.click();
     }, 10000);
@@ -70,13 +74,68 @@ const logAppointments = async (service, calendar) => {
     }, 20000);
     setTimeout(async () => {
       const result = await log(service, calendar, appointmentDatesInnerHTML);
-      console.log('result is: ', result);
+      console.log("result is: ", result);
       return result;
     }, 30000);
     setTimeout(async () => {
+      if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t") {
+        setTimeout(async () => {
+          const firstAppointmentDate = await page.waitForSelector(
+            "div > .appointmentDates > li:nth-child(1) > a"
+          );
+          await firstAppointmentDate.click();
+        }, 1000);
+        setTimeout(async () => {
+          const firstAppointment = await page.waitForSelector(
+            "div > .appointments > li:nth-child(1) > a"
+          );
+          await firstAppointment.click();
+        }, 5000);
+        setTimeout(async () => {
+          const cont = await page.waitForSelector("text/Continuar");
+          await cont.click();
+        }, 10000);
+        setTimeout(async () => {
+          await page.select("[name='solicitorDocumentType']", "PASSPORT");
+        }, 20000);
+
+        setTimeout(async () => {
+          await page.type("[name='solicitorData.nif']", documentNumber);
+        }, 22000);
+        setTimeout(async () => {
+          await page.type("[name='solicitorData.firstSurname']", firstSurname);
+        }, 24000);
+        setTimeout(async () => {
+          await page.type(
+            "[name='solicitorData.secondSurname']",
+            secondSurname
+          );
+        }, 26000);
+        setTimeout(async () => {
+          await page.type("[name='solicitorData.name']", givenName);
+        }, 28000);
+        setTimeout(async () => {
+          await page.type("[name='solicitorData.email']", email);
+        }, 30000);
+        setTimeout(async () => {
+          await page.type("[name='solicitorData.mobile']", mobile);
+        }, 32000);
+        setTimeout(async () => {
+          const beenInformed = await page.waitForSelector(
+            "input[name='rgpd:declareHaveBeenInformed']"
+          );
+          await beenInformed.click();
+        }, 34000);
+        setTimeout,
+          async () => {
+            const cont = await page.waitForSelector("text/Enviar");
+            await cont.click();
+          };
+      }
+    }, 40000);
+    setTimeout(async () => {
       await browser.browser.close();
     }, 300000);
-
   } catch (error) {
     console.error(
       "Unable to obtain and log appointments. Error is: ",
@@ -115,6 +174,8 @@ const jobsSchedule = scheduleJob(rule, runJobs);
     );
     await firstAppointmentDate.click();
   }, 8000);
+
+
   setTimeout(async () => {
     const firstAppointment = await page.waitForSelector(
       "div > .appointments > li:nth-child(1) > a"
