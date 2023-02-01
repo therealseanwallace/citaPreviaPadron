@@ -57,7 +57,7 @@ const logAppointments = async (service, calendar) => {
     const citaPreviaButton = await browser.page.waitForSelector(`text/${calendar}`);
     setTimeout(async () => {
       await citaPreviaButton.click();
-    }, 2000);
+    }, 10000);
     let appointmentDatesInnerHTML;
     setTimeout(async () => {
       const appointmentDates = await browser.page.waitForSelector(
@@ -67,12 +67,12 @@ const logAppointments = async (service, calendar) => {
         (appointmentDates) => appointmentDates.innerHTML,
         appointmentDates
       );
-    }, 5000);
+    }, 20000);
     setTimeout(async () => {
       const result = await log(service, calendar, appointmentDatesInnerHTML);
       console.log('result is: ', result);
       return result;
-    }, 7000);
+    }, 30000);
     setTimeout(async () => {
       await browser.browser.close();
     }, 300000);
