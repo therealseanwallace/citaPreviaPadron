@@ -4,21 +4,25 @@ const { html2json } = pkg;
 import log from "./services/loggingService.js";
 import mongoose from "mongoose";
 import pkgSchedule from "node-schedule";
+import dotenv from "dotenv";
+dotenv.config();
+
 const { scheduleJob, RecurrenceRule, Range } = pkgSchedule;
 
 console.log("pkgSchedule", pkgSchedule);
 
-const service = "Padrón de habitantes";
-const calendar = "Cita previa Padrón de Habitantes";
-const testService = "Alcaldía";
-const testCalendar =
-  "Enlaces matrimoniales (Solo si ha tramitado el expediente ante el Registro Civil)";
-const documentNumber = "12345678";
-const givenName = "name";
-const firstSurname = "firstSurname";
-const secondSurname = "secondSurname";
-const email = "email@email.com";
-const mobile = "123456789";
+const service = process.env.SERVICE;
+const calendar = process.env.CALENDAR;
+const testService = process.env.TEST_SERVICE;
+const testCalendar = process.env.TEST_CALENDAR;
+const documentNumber = process.env.DOCUMENT_NUMBER;
+const givenName = process.env.GIVEN_NAME;
+const firstSurname = process.env.FIRST_SURNAME;
+const secondSurname = process.env.SECOND_SURNAME;
+const email = process.env.EMAIL;
+const mobile = process.env.MOBILE;
+
+
 const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
 let appointmentObtained = false;
 
@@ -135,7 +139,7 @@ const logAppointments = async (service, calendar) => {
     }, 40000);
     setTimeout(async () => {
       await browser.browser.close();
-    }, 300000);
+    }, 600000);
   } catch (error) {
     console.error(
       "Unable to obtain and log appointments. Error is: ",

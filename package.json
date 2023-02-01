@@ -10,6 +10,7 @@
   "author": "Sean Patrick Wallace",
   "license": "CC BY-NC-SA 3.0",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "html2json": "^1.0.2",
     "mongoose": "^6.9.0",
     "node-schedule": "^2.1.1",
