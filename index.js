@@ -5,6 +5,7 @@ import log from "./services/loggingService.js";
 import mongoose from "mongoose";
 import pkgSchedule from "node-schedule";
 import dotenv from "dotenv";
+import editDotenv from "edit-dotenv";
 dotenv.config();
 
 const { scheduleJob, RecurrenceRule, Range } = pkgSchedule;
@@ -24,7 +25,7 @@ const mobile = process.env.MOBILE;
 
 
 const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
-let appointmentObtained = false;
+let appointmentObtained = process.env.APPOINTMENT_OBTAINED;
 
 const connect = async () => {
   try {
@@ -82,7 +83,7 @@ const logAppointments = async (service, calendar) => {
       return result;
     }, 30000);
     setTimeout(async () => {
-      if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t") {
+      if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t" && !appointmentObtained) {
         setTimeout(async () => {
           const firstAppointmentDate = await page.waitForSelector(
             "div > .appointmentDates > li:nth-child(1) > a"
@@ -134,6 +135,8 @@ const logAppointments = async (service, calendar) => {
           async () => {
             const cont = await page.waitForSelector("text/Enviar");
             await cont.click();
+            editDotenv("APPOINTMENT_OBTAINED", "true");
+            appointmentObtained = true;
           };
       }
     }, 40000);
@@ -151,9 +154,6 @@ const logAppointments = async (service, calendar) => {
 const runJobs = () => {
   console.log(`[${Date.now()}] Running jobs...`);
   logAppointments(service, calendar);
-  if (appointmentObtained === false) {
-    // attemptToBookAppointment();
-  }
 };
 
 // Run the jobs at 30 seconds, 15 minutes and 30 seconds,
