@@ -20,7 +20,7 @@ const secondSurname = "secondSurname";
 const email = "email@email.com";
 const mobile = "123456789";
 const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
-const appointmentObtained = false;
+let appointmentObtained = false;
 
 const connect = async () => {
   try {
@@ -75,7 +75,7 @@ const logAppointments = async (service, calendar) => {
     }, 7000);
     setTimeout(async () => {
       await browser.browser.close();
-    }, 8000);
+    }, 300000);
 
   } catch (error) {
     console.error(
