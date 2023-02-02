@@ -84,6 +84,7 @@ const logAppointments = async (service, calendar) => {
       return result;
     }, 30000);
 
+    /*
     setTimeout(async () => {
       if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t" && !appointmentObtained) {
         setTimeout(async () => {
@@ -144,7 +145,7 @@ const logAppointments = async (service, calendar) => {
     }, 40000);
     setTimeout(async () => {
       await browser.browser.close();
-    }, 600000);
+    }, 600000);*/
   } catch (error) {
     console.error(
       "Unable to obtain and log appointments. Error is: ",
