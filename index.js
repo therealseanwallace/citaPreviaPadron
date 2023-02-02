@@ -77,11 +77,13 @@ const logAppointments = async (service, calendar) => {
         appointmentDates
       );
     }, 20000);
+    let result;
     setTimeout(async () => {
-      const result = await log(service, calendar, appointmentDatesInnerHTML);
+      result = await log(service, calendar, appointmentDatesInnerHTML);
       console.log("result is: ", result);
       return result;
     }, 30000);
+
     setTimeout(async () => {
       if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t" && !appointmentObtained) {
         setTimeout(async () => {
@@ -161,6 +163,6 @@ const runJobs = () => {
 // past the hour
 
 const rule = new RecurrenceRule();
-rule.minute = new Range(0, 59, 15);
+rule.minute = new Range(0, 59, 1);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
