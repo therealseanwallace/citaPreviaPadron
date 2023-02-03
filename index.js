@@ -84,7 +84,8 @@ const logAppointments = async (service, calendar) => {
       return result;
     }, 30000);
 
-    
+    // checks if there are appointments, and that an appointment has not already been obtained
+    // if so, it attempts to obtain an appointment and toggles the appointmentObtained variable
     setTimeout(async () => {
       if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t" && !appointmentObtained) {
         setTimeout(async () => {
