@@ -13,7 +13,6 @@ If it finds appointments, it will attempt to make an appointment and toggle a va
 
 ## Packages used: 
 
-- [html2json](https://www.npmjs.com/package/html2json)
 - [Mongoose](https://www.npmjs.com/package/mongoose)
 - [node-schedule](https://www.npmjs.com/package/node-schedule)
 - [puppeteer](https://www.npmjs.com/package/puppeteer)

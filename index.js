@@ -1,6 +1,4 @@
 import puppeteer from "puppeteer";
-import pkg from "html2json";
-const { html2json } = pkg;
 import log from "./services/loggingService.js";
 import mongoose from "mongoose";
 import pkgSchedule from "node-schedule";
