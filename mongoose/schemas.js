@@ -7,6 +7,9 @@ const LogSchema = new Schema({
   service: String,
   calendar: String,
   json: Object,
+  obtained: Boolean,
 });
+
+
 
 export const LogModel = mongoose.model("Log", LogSchema);

@@ -1,9 +1,9 @@
 import puppeteer from "puppeteer";
-import log from "./services/loggingService.js";
+import { log, updateLogWithObtained, checkForLogWithObtained } from "./services/loggingService.js";
 import mongoose from "mongoose";
 import pkgSchedule from "node-schedule";
 import dotenv from "dotenv";
-import editDotenv from "edit-dotenv";
+
 dotenv.config();
 
 const { scheduleJob, RecurrenceRule, Range } = pkgSchedule;
@@ -20,10 +20,7 @@ const firstSurname = process.env.FIRST_SURNAME;
 const secondSurname = process.env.SECOND_SURNAME;
 const email = process.env.EMAIL;
 const mobile = process.env.MOBILE;
-
-
 const MONGO_URL = "mongodb://localhost:27017/citaPrevia";
-let appointmentObtained = process.env.APPOINTMENT_OBTAINED;
 
 const connect = async () => {
   try {
@@ -45,10 +42,18 @@ const openNewBrowser = async () => {
 };
 
 // Checks for appointments and logs the result to mongoDB
-const logAppointments = async (service, calendar) => {
+const logAppointments = async (serviceToUse, calendarToUse) => {
   const browser = await openNewBrowser();
+  const appointmentObtained = await checkForLogWithObtained();
+  if (appointmentObtained) {
+    console.log("Appointment already obtained. Aborting.");
+    browser.browser.close();
+    return;
+  } else {
+    console.log("No appointment obtained. Continuing.");
+  }
   // Navigates to the specified page
-
+  let resultID;
   await browser.page.goto("https://torrevieja.sedelectronica.es/citaprevia");
 
   // Attempts to select the service and calendar and log to mongodb
@@ -56,11 +61,11 @@ const logAppointments = async (service, calendar) => {
     await browser.page.goto("https://torrevieja.sedelectronica.es/citaprevia");
     await browser.page.setViewport({ width: 1080, height: 1024 });
     const buttonSelector = await browser.page.waitForSelector(
-      `text/${service}`
+      `text/${serviceToUse}`
     );
     await buttonSelector.click();
     const citaPreviaButton = await browser.page.waitForSelector(
-      `text/${calendar}`
+      `text/${calendarToUse}`
     );
     setTimeout(async () => {
       await citaPreviaButton.click();
@@ -79,67 +84,74 @@ const logAppointments = async (service, calendar) => {
     setTimeout(async () => {
       result = await log(service, calendar, appointmentDatesInnerHTML);
       console.log("result is: ", result);
+      resultID = result._id;
+      console.log("resultID is: ", resultID);
       return result;
     }, 30000);
 
     // checks if there are appointments, and that an appointment has not already been obtained
     // if so, it attempts to obtain an appointment and toggles the appointmentObtained variable
     setTimeout(async () => {
-      if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t" && !appointmentObtained) {
+      console.log('result.json is: ', result.json);
+      if (result.json !== "\n\t\t\t\t\t\n\t\t\t\t") {
+        console.log('Attempting to get appointment');
         setTimeout(async () => {
-          const firstAppointmentDate = await page.waitForSelector(
+          const firstAppointmentDate = await browser.page.waitForSelector(
             "div > .appointmentDates > li:nth-child(1) > a"
           );
           await firstAppointmentDate.click();
         }, 1000);
         setTimeout(async () => {
-          const firstAppointment = await page.waitForSelector(
+          const firstAppointment = await browser.page.waitForSelector(
             "div > .appointments > li:nth-child(1) > a"
           );
           await firstAppointment.click();
         }, 5000);
         setTimeout(async () => {
-          const cont = await page.waitForSelector("text/Continuar");
+          const cont = await browser.page.waitForSelector("text/Continuar");
           await cont.click();
         }, 10000);
         setTimeout(async () => {
-          await page.select("[name='solicitorDocumentType']", "PASSPORT");
+          await browser.page.select("[name='solicitorDocumentType']", "PASSPORT");
         }, 20000);
-
         setTimeout(async () => {
-          await page.type("[name='solicitorData.nif']", documentNumber);
+          await browser.page.type("[name='solicitorData.nif']", documentNumber);
         }, 22000);
         setTimeout(async () => {
-          await page.type("[name='solicitorData.firstSurname']", firstSurname);
+          await browser.page.type("[name='solicitorData.firstSurname']", firstSurname);
         }, 24000);
         setTimeout(async () => {
-          await page.type(
+          await browser.page.type(
             "[name='solicitorData.secondSurname']",
             secondSurname
           );
         }, 26000);
         setTimeout(async () => {
-          await page.type("[name='solicitorData.name']", givenName);
+          await browser.page.type("[name='solicitorData.name']", givenName);
         }, 28000);
         setTimeout(async () => {
-          await page.type("[name='solicitorData.email']", email);
+          await browser.page.type("[name='solicitorData.email']", email);
         }, 30000);
         setTimeout(async () => {
-          await page.type("[name='solicitorData.mobile']", mobile);
+          await browser.page.type("[name='solicitorData.mobile']", mobile);
         }, 32000);
         setTimeout(async () => {
-          const beenInformed = await page.waitForSelector(
+          await browser.page.type("[name='subject']", 'empadronarme');
+        }, 34000);
+        setTimeout(async () => {
+          const beenInformed = await browser.page.waitForSelector(
             "input[name='rgpd:declareHaveBeenInformed']"
           );
           await beenInformed.click();
-        }, 34000);
-        setTimeout,
-          async () => {
-            const cont = await page.waitForSelector("text/Enviar");
-            await cont.click();
-            editDotenv("APPOINTMENT_OBTAINED", "true");
-            appointmentObtained = true;
-          };
+        }, 36000);
+        setTimeout(async () => {
+          const send = await browser.page.waitForSelector(
+            "text/Enviar"
+          );
+          console.log('send is: ', send);
+          await send.click();
+          updateLogWithObtained(resultID);
+        }, 38000);
       }
     }, 40000);
     setTimeout(async () => {
@@ -153,7 +165,7 @@ const logAppointments = async (service, calendar) => {
   }
 };
 
-const runJobs = () => {
+const runJobs = async () => {
   console.log(`[${Date.now()}] Running jobs...`);
   logAppointments(service, calendar);
 };
@@ -167,3 +179,5 @@ rule.minute = new Range(0, 59, 15);
 rule.second = 30;
 const jobsSchedule = scheduleJob(rule, runJobs);
 
+
+// runJobs();
