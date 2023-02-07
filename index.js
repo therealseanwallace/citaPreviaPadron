@@ -152,6 +152,14 @@ const logAppointments = async (serviceToUse, calendarToUse) => {
           await send.click();
           updateLogWithObtained(resultID);
         }, 38000);
+        setTimeout(async () => {
+          await page.screenshot({
+            path: `.\\screenshots\\${Date.now()}.png`,
+          });
+        }, 40000);
+      } else {
+        console.log('No appointments available. Aborting');
+        
       }
     }, 40000);
     setTimeout(async () => {
