@@ -156,7 +156,7 @@ const logAppointments = async (serviceToUse, calendarToUse) => {
           await page.screenshot({
             path: `.\\screenshots\\${Date.now()}.png`,
           });
-        }, 40000);
+        }, 48000);
       } else {
         console.log('No appointments available. Aborting');
         
